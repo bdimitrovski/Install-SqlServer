@@ -60,6 +60,30 @@ See ticket [#3](https://github.com/majkinetor/Install-SqlServer/issues/3#issueco
 
 ## Troubleshooting
 
+### Installation issues on Windows 11
+
+It is possible that on some devices running Windows 11, SQL Server installation will fail to complete or start, [due to system disk sector size greater than 4 KB](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/database-file-operations/troubleshoot-os-4kb-disk-sector-size).
+
+You can confirm this by running:
+
+```pwsh
+fsutil fsinfo sectorinfo <volume pathname>
+```
+
+To resolve this, add a new key to the registry using:
+
+```pwsh
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters\Device" /v "ForcedPhysicalSectorSizeInBytes" /t   REG_MULTI_SZ /d "* 4095" /f
+```
+
+Validate if the key was added successfully:
+
+```pwsh
+REG QUERY "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters\Device" /v "ForcedPhysicalSectorSizeInBytes"
+```
+
+and run the installation script again.
+
 ### Installing on remote machine using PowerShell remote session
 
 The following errors may occur:
@@ -85,3 +109,4 @@ Add `wsman/*.<domain>` (set your own domain) in the following settings
     - [Accounts](https://docs.microsoft.com/en-us/sql/database-engine/install-windows/install-sql-server-2016-from-the-command-prompt#Accounts)
 - [Download SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms)
 - [Editions and features](https://docs.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2017)
+- []
